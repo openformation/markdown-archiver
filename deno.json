@@ -1,5 +1,15 @@
 {
   "name": "@openformation/markdown-archiver",
   "version": "0.1.0",
-  "exports": "./mod.ts"
+  "exports": "./mod.ts",
+  "imports": {
+    "@std/encoding": "jsr:@std/encoding@^0.224.2",
+    "effect": "npm:effect@^3.2.5",
+    "mdast": "npm:mdast@^3.0.0",
+    "remark-gfm": "npm:remark-gfm@^4.0.0",
+    "remark-parse": "npm:remark-parse@^11.0.0",
+    "remark-stringify": "npm:remark-stringify@^11.0.0",
+    "unified": "npm:unified@^11.0.4",
+    "unist-util-visit": "npm:unist-util-visit@^5.0.0"
+  }
 }
