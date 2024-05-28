@@ -1,40 +1,47 @@
-import { Effect, Layer } from "npm:effect";
+import type { FetchImageError } from "./image.ts";
+
+import { Effect, Layer } from "effect";
 import { ImageServiceLive } from "./image.ts";
 import { EnvironmentServiceLive } from "./environment.ts";
 import { MarkdownService, MarkdownServiceLive } from "./markdown.ts";
 import { TransformerService, TransformerServiceLive } from "./transformer.ts";
 
 function makeServices() {
-	const imageService = ImageServiceLive.pipe(
-		Layer.provide(EnvironmentServiceLive),
-	);
+  const imageService = ImageServiceLive.pipe(
+    Layer.provide(EnvironmentServiceLive),
+  );
 
-	const markdownService = MarkdownServiceLive;
+  const markdownService = MarkdownServiceLive;
 
-	const transformerService = TransformerServiceLive.pipe(
-		Layer.provide(imageService),
-	);
+  const transformerService = TransformerServiceLive.pipe(
+    Layer.provide(imageService),
+  );
 
-	return Layer.mergeAll(imageService, markdownService, transformerService);
+  return Layer.mergeAll(imageService, markdownService, transformerService);
 }
 
-export function archive(markdown: string) {
-	const run = Effect.gen(function* () {
-		const markdownService = yield* MarkdownService;
+export type Archiver = Readonly<{
+  asEffect: () => Effect.Effect<string, FetchImageError, never>;
+  asPromise: () => Promise<string>;
+}>;
 
-		const ast = yield* markdownService.parse(markdown);
+export function archive(markdown: string): Archiver {
+  const run = Effect.gen(function* () {
+    const markdownService = yield* MarkdownService;
 
-		const transformer = yield* TransformerService;
+    const ast = yield* markdownService.parse(markdown);
 
-		yield* transformer.embedImages(ast);
+    const transformer = yield* TransformerService;
 
-		return yield* markdownService.stringify(ast);
-	});
+    yield* transformer.embedImages(ast);
 
-	const program = Effect.provide(run, makeServices());
+    return yield* markdownService.stringify(ast);
+  });
 
-	return {
-		asEffect: () => program,
-		asPromise: () => Effect.runPromise(program),
-	} as const;
+  const program = Effect.provide(run, makeServices());
+
+  return {
+    asEffect: () => program,
+    asPromise: () => Effect.runPromise(program),
+  } as const;
 }

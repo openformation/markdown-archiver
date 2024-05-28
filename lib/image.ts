@@ -1,5 +1,5 @@
-import { Context, Effect, Layer } from "npm:effect";
-import { encodeBase64 } from "jsr:@std/encoding";
+import { Context, Effect, Layer } from "effect";
+import { encodeBase64 } from "@std/encoding";
 
 import { EnvironmentService } from "./environment.ts";
 
