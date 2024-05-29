@@ -1,7 +1,7 @@
 {
   "name": "@openformation/markdown-archiver",
   "description": "Library for creating self-contained markdown files by embedding images.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "exports": "./mod.ts",
   "imports": {
     "@std/encoding": "jsr:@std/encoding@^0.224.2",
@@ -13,5 +13,12 @@
     "remark-stringify": "npm:remark-stringify@^11.0.0",
     "unified": "npm:unified@^11.0.4",
     "unist-util-visit": "npm:unist-util-visit@^5.0.0"
+  },
+  "publish": {
+    "exclude": [
+      ".github",
+      ".vscode",
+      "__snapshots__"
+    ]
   }
 }
