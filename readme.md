@@ -8,13 +8,18 @@ The library is published to [jsr.io](https://jsr.io/) and can be installed into
 your TypeScript project by utilizing your respective package manager:
 
 ```sh
+# For Deno
 deno add @openformation/markdown-archiver
+
 # OR for npm
 npx jsr add @openformation/markdown-archiver
+
 # OR for Yarn
 yarn dlx jsr add @openformation/markdown-archiver
+
 # OR for pnpm
 pnpm dlx jsr add @openformation/markdown-archiver
+
 # OR for bun
 bunx jsr add @openformation/markdown-archiver
 ```

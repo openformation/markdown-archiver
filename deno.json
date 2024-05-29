@@ -1,5 +1,6 @@
 {
   "name": "@openformation/markdown-archiver",
+  "description": "Library for creating self-contained markdown files by embedding images.",
   "version": "0.1.1",
   "exports": "./mod.ts",
   "imports": {
