@@ -31,6 +31,9 @@ jobs:
     - name: Run Linter
       run: deno lint
 
+    - name: Run Doc Linter
+      run: deno doc --lint mod.ts
+
     - name: Run Tests
       run: deno test -A
 

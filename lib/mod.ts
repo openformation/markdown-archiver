@@ -20,8 +20,18 @@ function makeServices() {
   return Layer.mergeAll(imageService, markdownService, transformerService);
 }
 
+/**
+ * The archiver result type. The effect contains either a `string` with
+ * the archived markdown or a `FetchImageError` if fetching an image failed.
+ */
 export type Archiver = Effect.Effect<string, FetchImageError, never>;
 
+/**
+ * Takes source markdown contents and makes it self-contained by embedding images.
+ *
+ * @param markdown {string} The markdown to archive.
+ * @returns {string} The markdown with embedded images.
+ */
 export function archive(markdown: string): Archiver {
   const run = Effect.gen(function* () {
     const markdownService = yield* MarkdownService;

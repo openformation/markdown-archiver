@@ -3,8 +3,17 @@ import { encodeBase64 } from "@std/encoding";
 
 import { EnvironmentService } from "./environment.ts";
 
+/**
+ * Represents an error that can occurre while fetching an image.
+ */
 export class FetchImageError extends Error {
+  /**
+   * The tag of the error (used by `Effect` to determine the error type)
+   */
   readonly _tag = "FetchImageError";
+  /**
+   * The public error name.
+   */
   readonly name = "FetchImageError";
 }
 
