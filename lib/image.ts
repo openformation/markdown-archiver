@@ -80,7 +80,6 @@ const ImageServiceBrowser = ImageService.of({
   fetch(url: string) {
     return Effect.gen(function* () {
       const { buffer } = yield* fetchImage(url);
-
       const base64 = yield* Effect.tryPromise({
         try: () =>
           new Promise<string>((resolve, reject) => {

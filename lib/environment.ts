@@ -11,7 +11,7 @@ export const EnvironmentServiceLive = Layer.succeed(
   EnvironmentService,
   EnvironmentService.of({
     isBrowser() {
-      return typeof window !== "undefined";
+      return typeof globalThis?.location !== "undefined";
     },
   }),
 );

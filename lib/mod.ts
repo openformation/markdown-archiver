@@ -20,10 +20,7 @@ function makeServices() {
   return Layer.mergeAll(imageService, markdownService, transformerService);
 }
 
-export type Archiver = Readonly<{
-  asEffect: () => Effect.Effect<string, FetchImageError, never>;
-  asPromise: () => Promise<string>;
-}>;
+export type Archiver = Effect.Effect<string, FetchImageError, never>;
 
 export function archive(markdown: string): Archiver {
   const run = Effect.gen(function* () {
@@ -40,8 +37,5 @@ export function archive(markdown: string): Archiver {
 
   const program = Effect.provide(run, makeServices());
 
-  return {
-    asEffect: () => program,
-    asPromise: () => Effect.runPromise(program),
-  } as const;
+  return program;
 }

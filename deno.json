@@ -4,6 +4,7 @@
   "exports": "./mod.ts",
   "imports": {
     "@std/encoding": "jsr:@std/encoding@^0.224.2",
+    "@std/testing": "jsr:@std/testing@^0.224.0",
     "effect": "npm:effect@^3.2.5",
     "mdast": "npm:mdast@^3.0.0",
     "remark-gfm": "npm:remark-gfm@^4.0.0",
