@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Brand, Context, Effect, Layer } from "effect";
 import { encodeBase64 } from "@std/encoding";
 
 import { EnvironmentService } from "./environment.ts";
@@ -11,13 +11,19 @@ export class FetchImageError extends Error {
    * The tag of the error (used by `Effect` to determine the error type)
    */
   readonly _tag = "FetchImageError";
+
   /**
    * The public error name.
    */
   readonly name = "FetchImageError";
 }
 
-type ImageDataUri = string;
+type ImageDataUri = string & Brand.Brand<"ImageDataUri">;
+
+const ImageDataUri = Brand.refined<ImageDataUri>(
+  (value) => value.startsWith("data:"),
+  (value) => Brand.error(`Expected a data URI, but got ${value}`),
+);
 
 export function fetchImage(url: string) {
   return Effect.gen(function* () {
@@ -80,7 +86,7 @@ const ImageServiceServer = ImageService.of({
 
       const base64 = encodeBase64(buffer);
 
-      return `data:${mimeType};base64,${base64}` as ImageDataUri;
+      return ImageDataUri(`data:${mimeType};base64,${base64}`);
     });
   },
 });
@@ -91,7 +97,7 @@ const ImageServiceBrowser = ImageService.of({
       const { buffer } = yield* fetchImage(url);
       const base64 = yield* Effect.tryPromise({
         try: () =>
-          new Promise<string>((resolve, reject) => {
+          new Promise<ImageDataUri>((resolve, reject) => {
             const reader = new FileReader();
 
             function onLoad() {
@@ -106,7 +112,7 @@ const ImageServiceBrowser = ImageService.of({
               }
 
               reader.removeEventListener("load", onLoad);
-              resolve(result as ImageDataUri);
+              resolve(ImageDataUri(result as string));
             }
 
             function onError(cause: unknown) {
