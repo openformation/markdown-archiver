@@ -1,5 +1,3 @@
-import type { FetchImageError } from "./image.ts";
-
 import { Effect, Layer } from "effect";
 import { ImageServiceLive } from "./image.ts";
 import { EnvironmentServiceLive } from "./environment.ts";
