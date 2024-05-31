@@ -28,9 +28,7 @@ const ImageDataUri = Brand.refined<ImageDataUri>(
 export function fetchImage(url: string) {
   return Effect.gen(function* () {
     const response = yield* Effect.tryPromise({
-      try: () => {
-        return fetch(url);
-      },
+      try: () => fetch(url),
       catch: (cause: unknown) =>
         new FetchImageError(`Failed to fetch image at ${url}: ${cause}`, {
           cause,
@@ -38,6 +36,10 @@ export function fetchImage(url: string) {
     });
 
     if (!response.ok) {
+      if (response.body) {
+        yield* Effect.promise(response.body.cancel.bind(response.body));
+      }
+
       return yield* Effect.fail(
         new FetchImageError(
           `Failed to fetch image at ${url} as the server responded with a status code of ${response.status}.`,
@@ -76,10 +78,22 @@ export class ImageService extends Context.Tag("ImageService")<
     readonly fetch: (
       url: string,
     ) => Effect.Effect<ImageDataUri, FetchImageError>;
+    readonly getFallbackImageDataUri: () => Effect.Effect<
+      ImageDataUri
+    >;
   }
 >() {}
 
+function getFallbackImageDataUri() {
+  return Effect.succeed(
+    ImageDataUri(
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAADN0lEQVR4nO2Y3U9SYRzH+T/qstq6sYv+gmKkKaAmaLalazJNjdNoikAo0PSyteWFF3mRlk0Kp64ZDGsElq/LeLtpxYbrwoZ4lq04cG5+7XnwIfDEi43ToTy/7bs9nPNs5/N5Xsb2k0jEEkssscQqdzVq9cebKNMzldb0TUWZQNBoMcPMJcp8snR4rXFXcHAqN4hJrTMdKyqAV54ygW10HCLRLaBpWtBEoltgHX1AROxFBcixqQR4OksC7wJl+lpcYH/LhIamD4RwHV2B0y8SfzW0KED/Zzug8CVA4WPgvIeBKtfvP4qeo/dortzHgLTAXJTrKwH4EhuG7Z1h6FwJ8itQv8RkQuCQkNzLwDkPA2fdaejseWRulZMLf8aVgFh8GGBPjxOLj+TM41XgsKnzpkUOysazBHbiI+kF8aV3sKIE8sXmD2IJBI/G2e94FVB6PoNsSgOyJxo85kOO5k3Al4AL9j6QPqzGaXDcAksoCcYAC+1ryRyIlmUGdO9TMBRiYSiUAt1mCprfCiRgCLBgCbPQ7p7OwJNoXk2DLcyCNcxiyMFQCsxBBM3i59lBIh3rSRjwp8X0gRS0rf4Sb1tl8LuyC6CP6zc+gWxSwRGQTcqhf/0DB/YwsYRZvEjkd9kFLMEfoLR3ceBJFHYNDIW+c8Bu+7dBvdALqoUbeFyqEF1ugTbnWF54knbnWC5IKAVXXGaQzzbgtLqMYA0nhRGQTtQUFUBzdMsbGYjuJUcGnqT7jYN7LwIx6PXYoMdzB4/5ESgGv5/aqVYY9O+CYTMCynk1R0A5p4aBdx9zdknrvQediz04Wu9dvEuCCaA0z1tBvXCTA0+C7oNl/770r7ky8CR9ay5hBVBqniryCqBoXo+D2R+FrpcURwA9E1wA3Ye6mfr8EnON0LE4wIEnEV4A/T88vlhwF+rnmkDj7q5cAXyUpuUFJVTPL1e2gHSiGmodyoISV53XKlgAHaVHNSCfzX8flOg+uLv4FRA6qiMj0EQZ9/711uIMmowaqpUgEYlugeV+urmLGs9FBVp6DadUlCnOd7v8z9rrhhOSUgr14VErmxwnQcEp4x5a+ZLhxRJLLLHEkhyifgJu5rlgZTGQ8gAAAABJRU5ErkJggg==",
+    ),
+  );
+}
+
 const ImageServiceServer = ImageService.of({
+  getFallbackImageDataUri,
   fetch(url: string) {
     return Effect.gen(function* () {
       const { buffer, mimeType } = yield* fetchImage(url);
@@ -92,6 +106,7 @@ const ImageServiceServer = ImageService.of({
 });
 
 const ImageServiceBrowser = ImageService.of({
+  getFallbackImageDataUri,
   fetch(url: string) {
     return Effect.gen(function* () {
       const { buffer } = yield* fetchImage(url);

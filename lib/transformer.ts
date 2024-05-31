@@ -1,5 +1,4 @@
 import type { Html, Image, Root } from "mdast";
-import type { FetchImageError } from "./image.ts";
 
 import { Context, Effect, Layer } from "effect";
 import { visit } from "unist-util-visit";
@@ -11,7 +10,7 @@ export class TransformerService extends Context.Tag("TransformerService")<
   {
     readonly embedImages: (
       ast: Root,
-    ) => Effect.Effect<void, FetchImageError, ImageService>;
+    ) => Effect.Effect<void, never, ImageService>;
   }
 >() {}
 
@@ -19,7 +18,10 @@ function processImage(image: Image) {
   return Effect.gen(function* () {
     const imageService = yield* ImageService;
 
-    const dataUri = yield* imageService.fetch(image.url);
+    const dataUri = yield* Effect.orElse(
+      imageService.fetch(image.url),
+      () => imageService.getFallbackImageDataUri(),
+    );
 
     image.url = dataUri;
   });
@@ -37,7 +39,10 @@ function processHtmlImage({
     if (match) {
       const url = match[1];
 
-      const dataUri = yield* imageService.fetch(url);
+      const dataUri = yield* Effect.orElse(
+        imageService.fetch(url),
+        () => imageService.getFallbackImageDataUri(),
+      );
 
       node.value = node.value.replace(url, dataUri);
     }

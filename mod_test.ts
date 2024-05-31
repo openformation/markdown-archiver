@@ -15,3 +15,17 @@ Deno.test("should archive a markdown file with all images", async (t) => {
 
   await assertSnapshot(t, result);
 });
+
+Deno.test("should use a fallback image if downloading the image failed", async (t) => {
+  const program = archive(`
+#  Testing
+
+![](https://example.com/not-found.jpg)
+
+<img src="https://example.com/not-found.jpg" />
+`);
+
+  const result = await Effect.runPromise(program);
+
+  await assertSnapshot(t, result);
+});
